@@ -1,5 +1,6 @@
 *.m~
 *.txt
+*.asv
 /aux_toolboxes/glpkmex/INSTALL
 /aux_toolboxes/glpkmex/COPYING
 /aux_toolboxes/glpkmex/ChangeLog
