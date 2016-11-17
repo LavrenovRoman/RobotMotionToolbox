@@ -523,7 +523,7 @@ for combinations = 1:3
         
         findpath = 0;
         for i=1:length(CostWithoutCurve)
-            if cost==CostWithoutCurve(i) || isinf(cost);
+            if cost==CostWithoutCurve(i) || isinf(cost)
                 findpath = 1;
                 break;
             end
@@ -541,10 +541,10 @@ for combinations = 1:3
                 combineCurves{combinations,count_added} = Comb(c,:);
             end;
         else
-            %for i=1:combinations
-            %    fprintf(' %5.0f', Comb(c,i));
-            %end;
-            %fprintf(' do not added\n');
+            for i=1:combinations
+                fprintf(' %5.0f', Comb(c,i));
+            end;
+            fprintf(' do not added\n');
         end;
         %break;%!!!!!!!!!
     end

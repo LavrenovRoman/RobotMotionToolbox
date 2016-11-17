@@ -1026,6 +1026,8 @@ switch action
                 data.DVPaths = PathWithoutCurve;
                 data.DVCosts = CostWithoutCurve;
                 
+                homotopies = rmt_create_dv_homotopies(data.Vertex_Cord_DV, data.DVPaths, data.DVCosts, (data.Nobstacles+1), data.X1);
+                
                 %shortest_path
                 input_variables = zeros(8,1);
                 input_variables(1) = data.frame_limits(1);
