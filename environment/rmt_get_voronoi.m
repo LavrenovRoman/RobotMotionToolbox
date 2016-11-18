@@ -555,7 +555,7 @@ for i=number:CurvesSize
 end;
 
 [Dummy MinCost]=min(CostWithoutCurve);
-path = PathWithoutCurve{MinCost,1};
+path = PathWithoutCurve{minCost,1};
 fprintf(' DV with min cost is %5.0f\n', MinCost);
 
 for i=1:Num_Object
@@ -613,14 +613,14 @@ end
  
  
  for i=1:length(path)-1
- x=[Vertex_Cord(path(i),1) Vertex_Cord(path(i+1),1)];
- y=[Vertex_Cord(path(i),2) Vertex_Cord(path(i+1),2)];
- if Is_draw==1
-     plot(x,y,'-','color','r','LineWidth',2);
-     %drawnow;
-     hold on;
- end;
- traj = [traj;[x', y']];
+     x=[Vertex_Cord(path(i),1) Vertex_Cord(path(i+1),1)];
+     y=[Vertex_Cord(path(i),2) Vertex_Cord(path(i+1),2)];
+     if Is_draw==1
+         plot(x,y,'-','color','r','LineWidth',2);
+         %drawnow;
+         hold on;
+     end;
+     traj = [traj;[x', y']];
  end
  
  x=[Vertex_Cord(path(i+1),1) Goal(1)];

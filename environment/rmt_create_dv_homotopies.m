@@ -34,6 +34,7 @@ function [ homotopies ] = rmt_create_dv_homotopies(Vertex_Cord_DV, PathWithoutCu
                 if (h2 == 0)
                     pointI = [Vertex_Cord_DV(PathWithoutCurve{i,1}(1,pi), 1) Vertex_Cord_DV(PathWithoutCurve{i,1}(1,pi), 2)];
                     min_size = 1000000;
+                    dist = min_size;
                     pointJ_min = [0 0];
                     for pj=1:length(PathWithoutCurve{j,1})
                         h1 = 0;
@@ -51,12 +52,27 @@ function [ homotopies ] = rmt_create_dv_homotopies(Vertex_Cord_DV, PathWithoutCu
                         end;
                         pointJ = [Vertex_Cord_DV(PathWithoutCurve{j,1}(1,pj), 1) Vertex_Cord_DV(PathWithoutCurve{j,1}(1,pj), 2)];
                         dist = sqrt((pointI(1,1)-pointJ(1,1))^2 + (pointI(1,2)-pointJ(1,2))^2);
-                        if min_size < dist
+                        if min_size > dist
                             min_size = dist;
                             pointJ_min = pointJ;
                         end;
                     end;
+                    
+                    if dist == min_size 
+                        findIntersect = 0;
+                        break;
+                    end;
+                    
                     line = [pointI(1,1) pointI(1,2) pointJ_min(1,1) pointJ_min(1,2)];
+                    
+                    if (i==2 && j==7)
+                        x=[pointI(1,1) pointJ_min(1,1)];
+                        y=[pointI(1,2) pointJ_min(1,2)];
+                        plot(x,y,'-','color','r','LineWidth',2);
+                        drawnow;
+                        hold on;
+                    end;
+                    
                     for l=2:Nobstacles
                         for r=1:length(X1{l})
                            a=r;
@@ -68,12 +84,12 @@ function [ homotopies ] = rmt_create_dv_homotopies(Vertex_Cord_DV, PathWithoutCu
                            line_edge = [X1{l}(a,1) X1{l}(a,2) X1{l}(b,1) X1{l}(b,2)];
                            intersection_point = intersectEdges(line, line_edge);
                            if ~isnan(intersection_point(1,1)) || ~isnan(intersection_point(1,2))
-                               if ~(abs(intersection_point(1,1)-line(1,3))<eps && abs(intersection_point(1,2)-line(1,4))<eps)
-                                   if ~isequal(min_edge,line_edge)
-                                       findIntersect = 1;
-                                       break;
-                                   end;
-                               end;
+                               %if ~(abs(intersection_point(1,1)-line(1,3))<eps && abs(intersection_point(1,2)-line(1,4))<eps)
+                                   %if ~isequal(min_edge,line_edge)
+                               findIntersect = 1;
+                               break;
+                                   %end;
+                               %end;
                            end;
                         end;
                         if findIntersect==1
@@ -85,8 +101,9 @@ function [ homotopies ] = rmt_create_dv_homotopies(Vertex_Cord_DV, PathWithoutCu
                     end;
                 end;
             end;
-            if findIntersect == 1
-                homotopies(i,1) = 0;
+            if findIntersect == 0
+                homotopies(j,1) = 0;
+                fprintf('%5.0f Path is equal %5.0f homotopy\n' , j, i);
             end;
         end;
     end;
