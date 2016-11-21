@@ -1016,7 +1016,7 @@ switch action
                 data.All_cells_Number = All_cells_Number;
                 data.Cell_start = Cell_start;
                 data.X1 = X1;
-                [trajDV, Vertex_Cord_DV, PathWithoutCurve, CostWithoutCurve] = rmt_get_voronoi(data.handle_env, data.frame_limits, (data.Nobstacles+1),...
+                [trajDV, Vertex_Cord_DV, PathWithoutCurve, CostWithoutCurve, VertWithoutCurve] = rmt_get_voronoi(data.handle_env, data.frame_limits, (data.Nobstacles+1),...
                     data.initial, data.final,data.X_Total_points, data.Y_Total_points, ...
                     data.All_cells_Number, data.Cell_start, data.X1, 1);
                 %traj = rmt_visibility_graph(data.handle_env,input_variables,data.map,data.obstacles);                                
@@ -1025,8 +1025,14 @@ switch action
                 data.Vertex_Cord_DV = Vertex_Cord_DV;
                 data.DVPaths = PathWithoutCurve;
                 data.DVCosts = CostWithoutCurve;
+                data.DVVerts = VertWithoutCurve;
                 
                 homotopies = rmt_create_dv_homotopies(data.Vertex_Cord_DV, data.DVPaths, data.DVCosts, (data.Nobstacles+1), data.X1);
+                
+                criterii_length = 0.5;
+                criterii_curve = 0.5;
+                
+                rmt_iterations_with_creterias(homotopies, data.Vertex_Cord_DV, data.DVPaths, data.DVCosts, (data.Nobstacles+1), data.X1, criterii_length, criterii_curve);
                 
                 %shortest_path
                 input_variables = zeros(8,1);

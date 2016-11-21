@@ -25,7 +25,7 @@
 % ============================================================================
 
 
-function [traj, Vertex_Cord, PathWithoutCurve, CostWithoutCurve] = rmt_get_voronoi(handle_axes, limits, Num_Object, Start, ...
+function [traj, Vertex_Cord, PathWithoutCurve, CostWithoutCurve, VertWithoutCurve] = rmt_get_voronoi(handle_axes, limits, Num_Object, Start, ...
     Goal, X_Total_points, Y_Total_points, All_cells_Number, Cell_start, X1, Is_draw)
 
 %clear all;
@@ -310,6 +310,7 @@ for i=1:length(Vertexes3)
     end
 end
 
+VertWithoutCurve = cell(CurvesSize, 1);
 PathWithoutCurve = cell(CurvesSize, 1);
 CostWithoutCurve = [];
 
@@ -354,6 +355,7 @@ for k=1:length(path)
             end;
         end;
     else
+        VertWithoutCurve{1,1} = [VertWithoutCurve{1,1} Vertex(path(1,k))];
         fprintf(' %5.0f', Vertex(path(1,k)));
         if k<length(path)
             if UsesVertexes(path(1,k+1))>0
@@ -531,7 +533,6 @@ for combinations = 1:3
         if (findpath==0)
             PathWithoutCurve{number,1} = path;
             CostWithoutCurve = [CostWithoutCurve, cost];
-            number = number + 1;
             for i=1:combinations
                 fprintf(' %5.0f', Comb(c,i));
             end;
@@ -540,6 +541,22 @@ for combinations = 1:3
             if combinations>1
                 combineCurves{combinations,count_added} = Comb(c,:);
             end;
+            
+            VertWithoutCurve{number,1} = [];
+            fprintf(' Path with vertex');
+            for k=1:length(path)
+                curv = UsesVertexes(path(1,k));
+                if curv>0 
+                else
+                    VertWithoutCurve{number,1} = [VertWithoutCurve{number,1} Vertex(path(1,k))];
+                    fprintf(' %5.0f', Vertex(path(1,k)));
+                    
+                end;
+            end;
+            fprintf('\n');
+            
+            number = number + 1;
+            
         else
             for i=1:combinations
                 fprintf(' %5.0f', Comb(c,i));
@@ -552,10 +569,11 @@ end
 
 for i=number:CurvesSize
     PathWithoutCurve(number) = [];
+    VertWithoutCurve{number,1} = [];
 end;
 
 [Dummy MinCost]=min(CostWithoutCurve);
-path = PathWithoutCurve{minCost,1};
+path = PathWithoutCurve{MinCost,1};
 fprintf(' DV with min cost is %5.0f\n', MinCost);
 
 for i=1:Num_Object

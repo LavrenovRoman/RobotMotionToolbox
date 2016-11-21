@@ -8,15 +8,15 @@ function [ homotopies ] = rmt_create_dv_homotopies(Vertex_Cord_DV, PathWithoutCu
         for j=1:length(PathWithoutCurve{i,1})
             AllVertexesInVDs{PathWithoutCurve{i,1}(1,j), 1} = [AllVertexesInVDs{PathWithoutCurve{i,1}(1,j), 1}, i];
         end;
-        homotopies(i,1) = 1;
+        homotopies(i,1) = i;
     end;
     
     for i=1:length(PathWithoutCurve)-1
-        if homotopies(i,1) == 0
+        if homotopies(i,1) ~= i
             continue;
         end;
         for j=i+1:length(PathWithoutCurve)
-            if homotopies(j,1) == 0
+            if homotopies(j,1) ~= j
                 continue;
             end;
             findIntersect = 0;
@@ -65,14 +65,6 @@ function [ homotopies ] = rmt_create_dv_homotopies(Vertex_Cord_DV, PathWithoutCu
                     
                     line = [pointI(1,1) pointI(1,2) pointJ_min(1,1) pointJ_min(1,2)];
                     
-                    if (i==2 && j==7)
-                        x=[pointI(1,1) pointJ_min(1,1)];
-                        y=[pointI(1,2) pointJ_min(1,2)];
-                        plot(x,y,'-','color','r','LineWidth',2);
-                        drawnow;
-                        hold on;
-                    end;
-                    
                     for l=2:Nobstacles
                         for r=1:length(X1{l})
                            a=r;
@@ -102,7 +94,7 @@ function [ homotopies ] = rmt_create_dv_homotopies(Vertex_Cord_DV, PathWithoutCu
                 end;
             end;
             if findIntersect == 0
-                homotopies(j,1) = 0;
+                homotopies(j,1) = i;
                 fprintf('%5.0f Path is equal %5.0f homotopy\n' , j, i);
             end;
         end;
