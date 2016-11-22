@@ -1,4 +1,4 @@
-function [ homotopies ] = rmt_create_dv_homotopies(Vertex_Cord_DV, PathWithoutCurve, CostWithoutCurve, Nobstacles, X1)
+function [ homotopies ] = rmt_create_dv_homotopies(Vertex_Cord_DV, PathWithoutCurve, CostWithoutCurve, VertWithoutCurve, Nobstacles, X1)
 %RMT_CREATE_HOMOTOPIES Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -19,7 +19,13 @@ function [ homotopies ] = rmt_create_dv_homotopies(Vertex_Cord_DV, PathWithoutCu
             if homotopies(j,1) ~= j
                 continue;
             end;
+            
+            %if i==8 && j==13
+            %    pointJ_max = [0 0];
+            %end;
+            
             findIntersect = 0;
+            findh2 = 0;
             for pi=1:length(PathWithoutCurve{i,1})
                 h2 = 0;
                 for have2=1:length(AllVertexesInVDs{PathWithoutCurve{i,1}(1,pi), 1})
@@ -31,11 +37,12 @@ function [ homotopies ] = rmt_create_dv_homotopies(Vertex_Cord_DV, PathWithoutCu
                         break;
                     end;
                 end;
-                if (h2 == 0)
+                if (h2 == 0)     
+                    findh2 = 1;
                     pointI = [Vertex_Cord_DV(PathWithoutCurve{i,1}(1,pi), 1) Vertex_Cord_DV(PathWithoutCurve{i,1}(1,pi), 2)];
-                    min_size = 1000000;
-                    dist = min_size;
-                    pointJ_min = [0 0];
+                    max_size = 0;
+                    dist = max_size;
+                    pointJ_max = [0 0];                    
                     for pj=1:length(PathWithoutCurve{j,1})
                         h1 = 0;
                         for have1=1:length(AllVertexesInVDs{PathWithoutCurve{j,1}(1,pj), 1})
@@ -52,18 +59,24 @@ function [ homotopies ] = rmt_create_dv_homotopies(Vertex_Cord_DV, PathWithoutCu
                         end;
                         pointJ = [Vertex_Cord_DV(PathWithoutCurve{j,1}(1,pj), 1) Vertex_Cord_DV(PathWithoutCurve{j,1}(1,pj), 2)];
                         dist = sqrt((pointI(1,1)-pointJ(1,1))^2 + (pointI(1,2)-pointJ(1,2))^2);
-                        if min_size > dist
-                            min_size = dist;
-                            pointJ_min = pointJ;
+                        if max_size < dist
+                            max_size = dist;
+                            pointJ_max = pointJ;
                         end;
                     end;
                     
-                    if dist == min_size 
-                        findIntersect = 0;
-                        break;
-                    end;
+                    %if dist == min_size 
+                    %    findIntersect = 0;
+                    %    break;
+                    %end;
                     
-                    line = [pointI(1,1) pointI(1,2) pointJ_min(1,1) pointJ_min(1,2)];
+                    line = [pointI(1,1) pointI(1,2) pointJ_max(1,1) pointJ_max(1,2)];
+                    
+                    if i==8 && j==13
+                        x=[line(1,1) line(1,1)];
+                        y=[line(1,2) line(1,2)];
+                        plot(x,y,'-','color','g','LineWidth',3);
+                    end;
                     
                     for l=2:Nobstacles
                         for r=1:length(X1{l})
@@ -93,9 +106,35 @@ function [ homotopies ] = rmt_create_dv_homotopies(Vertex_Cord_DV, PathWithoutCu
                     end;
                 end;
             end;
+            if (findh2 == 0 && (length(VertWithoutCurve{i,1}) ~= length(VertWithoutCurve{j,1}))) %length(PathWithoutCurve{i,1}) < length(PathWithoutCurve{j,1}))
+                findIntersect = 1;
+            end;
             if findIntersect == 0
                 homotopies(j,1) = i;
                 fprintf('%5.0f Path is equal %5.0f homotopy\n' , j, i);
+            end;
+        end;
+    end;
+    
+    %p = 3;
+    %for i=1:length(PathWithoutCurve{p,1})-1
+    % x=[Vertex_Cord_DV(PathWithoutCurve{p,1}(1,i), 1) Vertex_Cord_DV(PathWithoutCurve{p,1}(1,i+1), 1)];
+    % y=[Vertex_Cord_DV(PathWithoutCurve{p,1}(1,i), 2) Vertex_Cord_DV(PathWithoutCurve{p,1}(1,i+1), 2)];
+    % plot(x,y,'-','color','r','LineWidth',2);
+    % drawnow;
+    % hold on;
+    %end
+    
+    for i=1:length(homotopies)
+        for j=1:length(homotopies)
+            if homotopies(j,1) == i
+                if CostWithoutCurve(j) > CostWithoutCurve(i)
+                    for k=1:length(homotopies)
+                        if homotopies(k,1) == i
+                            homotopies(k,1) = j;
+                        end;
+                    end;
+                end;
             end;
         end;
     end;
