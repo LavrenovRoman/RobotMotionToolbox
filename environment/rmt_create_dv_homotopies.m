@@ -139,5 +139,11 @@ function [ homotopies ] = rmt_create_dv_homotopies(Vertex_Cord_DV, PathWithoutCu
             end;
         end;
     end;
+    
+    for i=length(homotopies):-1:1
+        if homotopies(i,1) ~= i
+            homotopies(i,:) = [];
+        end;
+    end;        
 end
 

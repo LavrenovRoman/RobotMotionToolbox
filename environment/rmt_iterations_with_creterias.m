@@ -2,7 +2,6 @@ function [ paths ] = rmt_iterations_with_creterias (homotopies, Vertex_Cord_DV, 
 
 
 
-
 end
 
   
