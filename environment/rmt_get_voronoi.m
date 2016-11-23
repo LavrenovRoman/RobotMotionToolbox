@@ -336,6 +336,15 @@ end
 [Dummy Index_Goal]=min(Goal_distance);
 [path, cost] = dijkstra(Voro_Graph,Index_Start,Index_Goal);
 
+x=[Start(1) Vertex_Cord(Index_Start,1)];
+y=[Start(2) Vertex_Cord(Index_Start,2)];
+lineStart = [x(1,1) y(1,1) x(1,2) y(1,2)];
+x=[Vertex_Cord(Index_Goal,1) Goal(1)];
+y=[Vertex_Cord(Index_Goal,2) Goal(2)];
+lineGoal = [x(1,1) y(1,1) x(1,2) y(1,2)];
+cost = cost + sqrt((lineStart(1,3)-lineStart(1,1))^2 + (lineStart(1,4)-lineStart(1,2))^2);
+cost = cost + sqrt((lineGoal(1,3) -lineGoal(1,1))^2 +  (lineGoal(1,4)- lineGoal(1,2))^2);
+
 PathWithoutCurve{1,1} = path;
 CostWithoutCurve = [CostWithoutCurve, cost];
 
@@ -516,6 +525,8 @@ for combinations = 1:3
         end
         
         [path, cost] = dijkstra(Voro_Graph,Index_Start,Index_Goal);
+        cost = cost + sqrt((lineStart(1,3)-lineStart(1,1))^2 + (lineStart(1,4)-lineStart(1,2))^2);
+        cost = cost + sqrt((lineGoal(1,3) -lineGoal(1,1))^2 +  (lineGoal(1,4)- lineGoal(1,2))^2);
 
         %for i=1:length(path)-1
         %    x=[Vertex_Cord(path(i),1) Vertex_Cord(path(i+1),1)];
@@ -572,6 +583,17 @@ for i=number:CurvesSize
     VertWithoutCurve{number,1} = [];
 end;
 
+s = length(Vertex_Cord)+1;
+g = length(Vertex_Cord)+2;
+Vertex_Cord(s, 1) = Start(1,1);
+Vertex_Cord(s, 2) = Start(1,2);
+Vertex_Cord(g, 1) = Goal(1,1);
+Vertex_Cord(g, 2) = Goal(1,2);
+for i=1:length(PathWithoutCurve)
+    PathWithoutCurve{i,1} = [s PathWithoutCurve{i,1}];
+    PathWithoutCurve{i,1} = [PathWithoutCurve{i,1} g];
+end;
+
 [Dummy MinCost]=min(CostWithoutCurve);
 path = PathWithoutCurve{MinCost,1};
 fprintf(' DV with min cost is %5.0f\n', MinCost);
@@ -614,14 +636,14 @@ end;
     end;
 end
  
- x=[Start(1) Vertex_Cord(path(1),1)];
- y=[Start(2) Vertex_Cord(path(1),2)];
- if Is_draw==1
-    plot(x,y,'-','color','r','LineWidth',2);
-    drawnow;
- end;
+ %x=[Start(1) Vertex_Cord(path(1),1)];
+ %y=[Start(2) Vertex_Cord(path(1),2)];
+ %if Is_draw==1
+ %   plot(x,y,'-','color','r','LineWidth',2);
+ %   drawnow;
+ %end;
  
- traj = [traj;[x', y']];
+ %traj = [traj;[x', y']];
  %aux_x = traj(end-1,1);
  %aux_y = traj(end-1,2);
  %traj(end-1,1) = traj(end-2,1);
@@ -641,13 +663,13 @@ end
      traj = [traj;[x', y']];
  end
  
- x=[Vertex_Cord(path(i+1),1) Goal(1)];
- y=[Vertex_Cord(path(i+1),2) Goal(2)];
- if Is_draw==1
-     plot(x,y,'-','color','r','LineWidth',2);
-     drawnow;
- end;
- traj = [traj;[x', y']];
+ %x=[Vertex_Cord(path(i+1),1) Goal(1)];
+ %y=[Vertex_Cord(path(i+1),2) Goal(2)];
+ %if Is_draw==1
+ %    plot(x,y,'-','color','r','LineWidth',2);
+ %    drawnow;
+ %end;
+ %traj = [traj;[x', y']];
  
 
 end%function
