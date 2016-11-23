@@ -25,8 +25,8 @@
 % ============================================================================
 
 
-function [traj, Vertex_Cord, PathWithoutCurve, CostWithoutCurve, VertWithoutCurve] = rmt_get_voronoi(handle_axes, limits, Num_Object, Start, ...
-    Goal, X_Total_points, Y_Total_points, All_cells_Number, Cell_start, X1, Is_draw)
+function [traj, Vertex_Cord, PathWithoutCurve, CostWithoutCurve, VertWithoutCurve, Edges, Verts] = rmt_get_voronoi(handle_axes, ...
+    limits, Num_Object, Start, Goal, X_Total_points, Y_Total_points, All_cells_Number, Cell_start, X1, Is_draw)
 
 %clear all;
 %close all;
@@ -39,12 +39,10 @@ Nyi = limits(3);
 Ny = limits(4);
 env_bounds=[Nxi,Nx,Nyi,Ny];
 
-if Is_draw==1
 axes(handle_axes);
 axis(env_bounds);
 hold on
 grid on
-end;
 
 
 %specify file name here to load from
@@ -172,6 +170,10 @@ for i=1:length(Temp_Edge)
         plot([Edge_X1(i) Edge_X2(i)],[Edge_Y1(i) Edge_Y2(i)],'color',[.8 .8 .8]);
     end;
 end
+Edges(1, :) = Edge_X1;
+Edges(2, :) = Edge_X2;
+Edges(3, :) = Edge_Y1;
+Edges(4, :) = Edge_Y2;
 
 Vertex = unique(Temp_Edge);
 N = length(Vertex);
@@ -245,9 +247,12 @@ end
 Curves = cell(length(Vertexes1)+2*length(Vertexes3), 1);
 CurvesVertexes = zeros(size(Curves,1),2);
 UsesVertexes = zeros(N,1);
+Verts = zeros(length(Vertexes1)+length(Vertexes3), 2);
 
 %create curves from 1-used vertexes to 3-used
 for i=1:length(Vertexes1)
+    Verts(i,1) = Voro_Vertex(Vertex(Vertexes1(i)),1);
+    Verts(i,2) = Voro_Vertex(Vertex(Vertexes1(i)),2);
     curve = [];
     point = Vertexes1(i);
     curve = [curve point];
@@ -276,6 +281,8 @@ end
 %create curves from 1-used vertexes to 3-used
 CurvesSize = 4; 
 for i=1:length(Vertexes3)
+    Verts(4+i,1) = Voro_Vertex(Vertex(Vertexes3(i)),1);
+    Verts(4+i,2) = Voro_Vertex(Vertex(Vertexes3(i)),2);
     pointbegin = Vertexes3(i);        
     listNeirbourVertex = AllNeirboursVertexes{pointbegin, 1};
     for k=1:length(listNeirbourVertex)
@@ -364,7 +371,7 @@ for k=1:length(path)
             end;
         end;
     else
-        VertWithoutCurve{1,1} = [VertWithoutCurve{1,1} Vertex(path(1,k))];
+        VertWithoutCurve{1,1} = [VertWithoutCurve{1,1} path(1,k)];
         fprintf(' %5.0f', Vertex(path(1,k)));
         if k<length(path)
             if UsesVertexes(path(1,k+1))>0
@@ -559,7 +566,7 @@ for combinations = 1:3
                 curv = UsesVertexes(path(1,k));
                 if curv>0 
                 else
-                    VertWithoutCurve{number,1} = [VertWithoutCurve{number,1} Vertex(path(1,k))];
+                    VertWithoutCurve{number,1} = [VertWithoutCurve{number,1} path(1,k)];
                     fprintf(' %5.0f', Vertex(path(1,k)));
                     
                 end;
@@ -598,6 +605,7 @@ end;
 path = PathWithoutCurve{MinCost,1};
 fprintf(' DV with min cost is %5.0f\n', MinCost);
 
+%{
 for i=1:Num_Object
     for r=1:length(X1{i})
        a=r;
@@ -624,8 +632,8 @@ if Is_draw==1
 end;
  %figure(1);
  %axis([0 100 0 100]);
- hold on;
- 
+hold on;
+
  for i=1:length(Temp_Edge)
     Edge_X1(i)=Voro_Vertex(Temp_Edge(i,1),1);
     Edge_X2(i)=Voro_Vertex(Temp_Edge(i,2),1);
@@ -635,6 +643,7 @@ end;
         plot([Edge_X1(i) Edge_X2(i)],[Edge_Y1(i) Edge_Y2(i)],'color',[.7 .7 .7],'LineWidth',2);
     end;
 end
+%}
  
  %x=[Start(1) Vertex_Cord(path(1),1)];
  %y=[Start(2) Vertex_Cord(path(1),2)];
