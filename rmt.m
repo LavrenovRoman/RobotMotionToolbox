@@ -1033,12 +1033,13 @@ switch action
                 
                 data.Homotopies = rmt_create_dv_homotopies(data.Vertex_Cord_DV, data.DVPaths, ...
                     data.DVCosts, data.DVVerts, (data.Nobstacles+1), data.X1);
-                
-                criterii_length = 0.5;
-                criterii_curve = 0.5;
+                                
+                % 1st - criterii_length;
+                % 2nd - criterii_curve;
+                criterias = [0.5, 0.5];
                 
                 rmt_iterations_with_creterias(data, (data.Nobstacles+1), data.X1, ...
-                    criterii_length, criterii_curve);
+                    criterias);
                 
                 %shortest_path
                 input_variables = zeros(8,1);

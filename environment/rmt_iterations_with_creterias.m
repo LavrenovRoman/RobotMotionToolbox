@@ -1,4 +1,4 @@
-function [ paths ] = rmt_iterations_with_creterias (data, Nobstacles, X1, criterii_length, criterii_curve )
+function [ paths ] = rmt_iterations_with_creterias (data, Nobstacles, X1, criterias)
 
     cRand = 10;
     dlt = 0.1;
@@ -44,20 +44,18 @@ function [ paths ] = rmt_iterations_with_creterias (data, Nobstacles, X1, criter
                 y = dlt*yr/sqrt(xr^2 + yr^2);
                 deltas(j, 1) = x;
                 deltas(j, 2) = y;
-                path(changePoints(i), 1) = path(changePoints(i), 1) + x;
-                path(changePoints(i), 2) = path(changePoints(i), 2) + y;
-                [cLenN, cCurvN] = rmt_calcCriterias(path, Nobstacles, X1);
+                tempPath(changePoints(i), 1) = path(changePoints(i), 1) + x;
+                tempPath(changePoints(i), 2) = path(changePoints(i), 2) + y;
+                [cLenN, cCurvN] = rmt_calcCriterias(tempPath, Nobstacles, X1);
                 [bLenN, bCurvN] = checkCriterias(cLen, cCurv, cLenN, cCurvN);
                 results(j, 1) = bLenN;
                 results(j, 2) = bCurvN;
                 resultsC(j, 1) = cLenN;
-                resultsC(j, 2) = cCurvN;                
-                
-                tempPath(changePoints(i), 1) = path(changePoints(i), 1) - x;
-                tempPath(changePoints(i), 2) = path(changePoints(i), 2) - y;
-                
-                Draw(data, tempPath)
+                resultsC(j, 2) = cCurvN;
+                Draw(data, tempPath);
             end;
+            CurBestResult = setModifyPath(path, tempPath, ...
+                deltas, results, resultsC, criterias); 
         end;
         
         stopIteration = 0;
@@ -67,6 +65,15 @@ function [ paths ] = rmt_iterations_with_creterias (data, Nobstacles, X1, criter
         end;
     end;
 
+end
+
+function [CurBestResult] = setModifyPath(path, tempPath, deltas, results, resultsC, criterias)
+    for i=1:length(results(:, 1))
+        results(i,1) = results(i,1)*criterias(1,1);
+        results(i,2) = results(i,2)*criterias(1,2);
+        
+    end
+    
 end
 
 function [bLen, bCurv] = checkCriterias(cLen, cCurv, cLenN, cCurvN)
