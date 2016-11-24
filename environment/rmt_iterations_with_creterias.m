@@ -3,13 +3,13 @@ function [ paths ] = rmt_iterations_with_creterias (data, Nobstacles, X1, criter
     for h=1:length(data.Homotopies)
         
         Draw(data);
-        [cLen, cCurv] = rmt_calcCriterias(data.Vertex_Cord_DV, data.PathWithoutCurve{h,1}, Nobstacles, X1);
+        [cLen, cCurv] = rmt_calcCriterias(data.Vertex_Cord_DV, data.DVPaths{h,1}, Nobstacles, X1);
         
         changePoints = [];
         pb=1;
-        for i=1:length(data.VertWithoutCurve{h,1})
-            for j=pb:length(data.PathWithoutCurve{h,1})
-                if data.PathWithoutCurve{h,1}(1,j) == data.VertWithoutCurve{h,1}(1,i)
+        for i=1:length(data.DVVerts{h,1})
+            for j=pb:length(data.DVPaths{h,1})
+                if data.DVPaths{h,1}(1,j) == data.DVVerts{h,1}(1,i)
                     changePoints = [changePoints j];
                     break;
                 end;
@@ -19,13 +19,12 @@ function [ paths ] = rmt_iterations_with_creterias (data, Nobstacles, X1, criter
         if 2 ~= changePoints(1,1)
             changePoints = [2 changePoints];
         end;
-        if length(data.PathWithoutCurve{h,1})-1 ~= changePoints(1,length(changePoints))
-            changePoints = [changePoints length(data.PathWithoutCurve{h,1})-1];
+        if length(data.DVPaths{h,1})-1 ~= changePoints(1,length(changePoints))
+            changePoints = [changePoints length(data.DVPaths{h,1})-1];
         end;
         
         stopIteration = 0;
         while stopIteration == 0
-            
             
             
             stopIteration = 1;
