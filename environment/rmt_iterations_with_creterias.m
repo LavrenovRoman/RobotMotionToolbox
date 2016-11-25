@@ -34,8 +34,8 @@ function [ paths ] = rmt_iterations_with_creterias (data, Nobstacles, X1, criter
         end;
         
         [cCrits] = rmt_calcCriterias(path, data);
-        tempPath = path;
         for i=1:length(changePoints)
+            tempPath = path;
             deltas  = zeros(cRand, 2);
             results = zeros(cRand, count_crits);
             resultsC = zeros(cRand, count_crits);
@@ -65,7 +65,10 @@ function [ paths ] = rmt_iterations_with_creterias (data, Nobstacles, X1, criter
                 changePointsDlt(i, :) = [deltas(CurBestResult, 1) deltas(CurBestResult, 2)];
                 path(changePoints(i), 1) = path(changePoints(i), 1) + deltas(CurBestResult, 1);
                 path(changePoints(i), 2) = path(changePoints(i), 2) + deltas(CurBestResult, 2);
+                [cCrits] = rmt_calcCriterias(path, data);
                 Draw(data, path);
+            else
+                changePointsDlt(i, :) = [0 0];
             end;
         end;
         
