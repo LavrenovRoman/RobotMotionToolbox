@@ -1,17 +1,19 @@
 function [ paths ] = rmt_iterations_with_creterias (data, Nobstacles, X1, criterias)
 
+    cTry = 10;
     cRand = 10;
     dlt = 0.1;
-
+    count_crits = length(criterias);
+    
     for h=1:length(data.Homotopies)
-        
         nP = data.Homotopies(h, 1);
+        dlt = data.DVCosts(nP)/(2*length(data.DVPaths{nP,1}));
         path = zeros(length(data.DVPaths{nP,1}), 2);
         for i=1:length(data.DVPaths{nP,1})
             path(i,1) = data.Vertex_Cord_DV(data.DVPaths{nP,1}(1,i),1);
             path(i,2) = data.Vertex_Cord_DV(data.DVPaths{nP,1}(1,i),2);
         end;
-        Draw(data, path);        
+        Draw(data, path);         
         changePoints = [];
         changePointsDlt = [];
         pb=1;
@@ -31,31 +33,40 @@ function [ paths ] = rmt_iterations_with_creterias (data, Nobstacles, X1, criter
             changePoints = [changePoints length(data.DVPaths{nP,1})-1];
         end;
         
-        [cLen, cCurv] = rmt_calcCriterias(path, Nobstacles, X1);
+        [cCrits] = rmt_calcCriterias(path, data);
         tempPath = path;
         for i=1:length(changePoints)
-            results = zeros(cRand, 2);
             deltas  = zeros(cRand, 2);
-            resultsC = zeros(cRand, 2);
-            for j=1:cRand
-                xr = rand(1) - 0.5;
-                yr = rand(1) - 0.5;
-                x = dlt*xr/sqrt(xr^2 + yr^2);
-                y = dlt*yr/sqrt(xr^2 + yr^2);
-                deltas(j, 1) = x;
-                deltas(j, 2) = y;
-                tempPath(changePoints(i), 1) = path(changePoints(i), 1) + x;
-                tempPath(changePoints(i), 2) = path(changePoints(i), 2) + y;
-                [cLenN, cCurvN] = rmt_calcCriterias(tempPath, Nobstacles, X1);
-                [bLenN, bCurvN] = checkCriterias(cLen, cCurv, cLenN, cCurvN);
-                results(j, 1) = bLenN;
-                results(j, 2) = bCurvN;
-                resultsC(j, 1) = cLenN;
-                resultsC(j, 2) = cCurvN;
-                Draw(data, tempPath);
+            results = zeros(cRand, count_crits);
+            resultsC = zeros(cRand, count_crits);
+            value = 0;
+            t = 0;
+            while value <= 0 && t<cTry
+                for j=1:cRand
+                    xr = rand(1) - 0.5;
+                    yr = rand(1) - 0.5;
+                    x = dlt*xr/sqrt(xr^2 + yr^2);
+                    y = dlt*yr/sqrt(xr^2 + yr^2);
+                    deltas(j, 1) = x;
+                    deltas(j, 2) = y;
+                    tempPath(changePoints(i), 1) = path(changePoints(i), 1) + x;
+                    tempPath(changePoints(i), 2) = path(changePoints(i), 2) + y;
+                    [cCritsN] = rmt_calcCriterias(tempPath, data);
+                    [bCritsN] = checkCriterias(cCrits, cCritsN);
+                    results(j,:) = bCritsN;
+                    resultsC(j, :) = cCritsN;
+                    %Draw(data, tempPath);
+                end;
+                [CurBestResult, value] = setModifyPath(path, tempPath, ...
+                    deltas, results, resultsC, criterias); 
+                t = t + 1;
             end;
-            CurBestResult = setModifyPath(path, tempPath, ...
-                deltas, results, resultsC, criterias); 
+            if (value > 0)
+                changePointsDlt(i, :) = [deltas(CurBestResult, 1) deltas(CurBestResult, 2)];
+                path(changePoints(i), 1) = path(changePoints(i), 1) + deltas(CurBestResult, 1);
+                path(changePoints(i), 2) = path(changePoints(i), 2) + deltas(CurBestResult, 2);
+                Draw(data, path);
+            end;
         end;
         
         stopIteration = 0;
@@ -67,27 +78,66 @@ function [ paths ] = rmt_iterations_with_creterias (data, Nobstacles, X1, criter
 
 end
 
-function [CurBestResult] = setModifyPath(path, tempPath, deltas, results, resultsC, criterias)
+function [CurBestResult, Value] = setModifyPath(path, tempPath, deltas, results, resultsC, criterias)
+    Value = -10;
+    sumRes = zeros(length(results(:, 1)), 1);
     for i=1:length(results(:, 1))
-        results(i,1) = results(i,1)*criterias(1,1);
-        results(i,2) = results(i,2)*criterias(1,2);
-        
-    end
+        for j=1:length(criterias(1, :))
+            results(i,j) = results(i,j)*criterias(1,j);
+            sumRes(i,1) = sumRes(i,1) + results(i,j);
+        end;
+    end;
+    for i=1:length(sumRes)
+        if Value<sumRes(i,1)
+            Value=sumRes(i,1);
+            CurBestResult = i;
+        end;
+    end;
+end
+
+function [bCritsN] = checkCriterias(cCrits, cCritsN)
+    bCritsN = zeros(1, length(cCrits));
     
+    if cCrits(1,1)>cCritsN(1,1)
+        bCritsN(1,1) = 1;
+    end;
+    if cCrits(1,1)<cCritsN(1,1)
+        bCritsN(1,1) = -1;
+    end;
+    
+    if cCrits(1,2)<cCritsN(1,2)
+        bCritsN(1,2) = 1;
+    end;
+    if cCrits(1,2)>cCritsN(1,2)
+        bCritsN(1,2) = -1;
+    end;
+    
+    if cCrits(1,3)<cCritsN(1,3)
+        bCritsN(1,3) = 1;
+    end;
+    if cCrits(1,3)<cCritsN(1,3)
+        bCritsN(1,3) = -1;
+    end;
+    
+    if cCrits(1,4)<cCritsN(1,4)
+        bCritsN(1,4) = 1;
+    end;
+    if cCrits(1,4)>cCritsN(1,4)
+        bCritsN(1,4) = -1;
+    end;
+    
+    if cCrits(1,5)<cCritsN(1,5)
+        bCritsN(1,5) = 1;
+    end;
+    if cCrits(1,5)>cCritsN(1,5)
+        bCritsN(1,5) = -1;
+    end;
 end
 
-function [bLen, bCurv] = checkCriterias(cLen, cCurv, cLenN, cCurvN)
-    bLen = 0;
-    bCurv = 0;
-    if cLen>cLenN
-        bLen = 1;
-    end;
-    if cCurv>=cCurvN
-        bCurv = 1;
-    end;
-end
+function [cCrits] = rmt_calcCriterias(path, data)
 
-function [cLen, cCurv] = rmt_calcCriterias(path, Nobstacles, X1)
+    cCrits = zeros(1,5);
+    
     % maxLength
     cLen = 0;
     for i=1:length(path)-1
@@ -95,6 +145,7 @@ function [cLen, cCurv] = rmt_calcCriterias(path, Nobstacles, X1)
         y=[path(i,2) path(i+1,2)];
         cLen = cLen + sqrt((x(1,2)-x(1,1))^2 + (y(1,2)-y(1,1))^2);
     end;
+    cCrits(1,1) = cLen;
     
     % maxCurve
     cCurv = 180;
@@ -111,6 +162,52 @@ function [cLen, cCurv] = rmt_calcCriterias(path, Nobstacles, X1)
             cCurv = abs(angle);
         end;
     end;
+    cCrits(1,2) = cCurv;
+    
+    %max_see_begin
+    cSBegin = 0;
+    for i=2:length(path)
+        line = [path(1,1) path(1,2) path(i,1) path(i,2)];
+        [findIntersect, pIntersect] = find_point_intersect(data, line);
+        if findIntersect==0
+            lineSqrt = sqrt((path(i,1)-path(1,1))^2 + (path(i,2)-path(1,2))^2);
+            if lineSqrt>cSBegin
+                cSBegin = lineSqrt;
+            end;
+        end;
+        if findIntersect==1
+            break;
+        end;
+    end;
+    cCrits(1,3) = cSBegin;
+    
+    %max_see_end
+    cSEnd = 0;
+    lp = length(path);
+    for i=length(path)-1:-1:1
+        line = [path(lp,1) path(lp,2) path(i,1) path(i,2)];
+        [findIntersect, pIntersect] = find_point_intersect(data, line);
+        if findIntersect==0
+            lineSqrt = sqrt((path(i,1)-path(lp,1))^2 + (path(i,2)-path(lp,2))^2);
+            if lineSqrt>cSEnd
+                cSEnd = lineSqrt;
+            end;
+        end;
+        if findIntersect==1
+            break;
+        end;
+    end;
+    cCrits(1,4) = cSEnd;
+    
+    %min_dist_from_obstacles
+    minDist = 1000000;
+    for i=2:length(path)-1
+        [dist] = dist_from_obstacles(data, path(i,:));
+        if dist<minDist
+            minDist = dist;
+        end;
+    end;
+    cCrits(1,5) = minDist;
 end
 
 function [] = Draw(data, path)
@@ -139,6 +236,43 @@ function [] = Draw(data, path)
     end;
     drawnow;
     hold on;
+end
+
+function [dist] = dist_from_obstacles(data, point)
+    dist = 1000000;
+    Num_Object = data.Nobstacles+1;
+    for i=2:Num_Object
+        for r=1:length(data.X1{i})
+           d = sqrt((point(1,1)-data.X1{i}(r,1))^2 + (point(1,2)-data.X1{i}(r,2))^2);
+           if (d<dist)
+               dist = d;
+           end;
+        end
+    end;
+end
+
+function [findIntersect, pIntersect] = find_point_intersect(data, line)
+    findIntersect = 0;
+    Num_Object = data.Nobstacles+1;
+    for i=2:Num_Object
+        for r=1:length(data.X1{i})
+           a=r;
+           if(r==length(data.X1{i}))
+               b=1;
+           else
+               b=r+1;
+           end
+           line_edge = [data.X1{i}(a,1) data.X1{i}(a,2) data.X1{i}(b,1) data.X1{i}(b,2)];
+           pIntersect = intersectEdges(line, line_edge);
+           if ~isnan(pIntersect(1,1)) || ~isnan(pIntersect(1,2))
+               findIntersect = 1;
+               break;
+           end
+        end
+        if findIntersect==1
+            break;
+        end;
+    end;
 end
 
   

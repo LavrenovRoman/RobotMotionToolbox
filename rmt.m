@@ -1036,7 +1036,10 @@ switch action
                                 
                 % 1st - criterii_length;
                 % 2nd - criterii_curve;
-                criterias = [0.5, 0.5];
+                % 3rd - criterii_max_see_begin;
+                % 4th - criterii_max_see_end;
+                % 5th - min_dist_from_obstacles
+                criterias = [0.3, 0.3, 0.2, 0.2, 0.3];
                 
                 rmt_iterations_with_creterias(data, (data.Nobstacles+1), data.X1, ...
                     criterias);
