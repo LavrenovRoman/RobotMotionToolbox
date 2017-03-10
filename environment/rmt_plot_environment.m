@@ -34,7 +34,7 @@ set(gca,'Box','on');
 
 if(nargin>2)
 for i=1:length(objects)
-    fill(objects{i}(1,:),objects{i}(2,:),'b-','FaceAlpha',0.5);
+    fill(objects{i}(1,:),objects{i}(2,:),'g-','FaceAlpha',0.5);
     centr=mean(objects{i},2)';
 %     if nargin<3
         %comment by ramon text(centr(1),centr(2),sprintf('O_{%d}',i),'HorizontalAlignment','center','Color','w','FontSize',12,'FontWeight','bold','FontAngle','italic','FontName','TimesNewRoman');
@@ -48,9 +48,9 @@ switch nargin
         [a1 a2] = size(objects{1});
         for(i=1:length(objects))
             if(a1>a2)
-                fill(objects{i}(:,1),objects{i}(:,2),'b-','FaceAlpha',0.5); 
+                fill(objects{i}(:,1),objects{i}(:,2),'g-','FaceAlpha',0.5); 
             else
-                fill(objects{i}(1,:),objects{i}(2,:),'b-','FaceAlpha',0.5); 
+                fill(objects{i}(1,:),objects{i}(2,:),'g-','FaceAlpha',0.5); 
             end
         end        
     case 3  %argument C (cells) - plot cell decomposition

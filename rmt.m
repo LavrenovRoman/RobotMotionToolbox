@@ -1073,7 +1073,7 @@ switch action
                         path_i = rmt_get_voronoi_path(Vertex_Cord_DV, data.DVCosts(i), data.DVPaths{i,1}, data.initial, data.final, 0.25);
                         minDistFromDangers(i,1) = 10000000;
                         pointsViewDanger = zeros(size(path_i,1),1);
-                        for j=1:size(path_i,1);
+                        for j=1:size(path_i,1)
                             minDist = 10000000;
                             for k=1:size(data.danger_positions,1)
                                 dist = sqrt((data.danger_positions(k,1)-path_i(j,1))^2 + (data.danger_positions(k,2)-path_i(j,2))^2);

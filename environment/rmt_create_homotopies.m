@@ -24,6 +24,9 @@ function [ homotopies ] = rmt_create_homotopies(Vertex_Cord_DV, PathWithoutCurve
                 min_point(1,1) = min_edge(1,1) + min_pos*(min_edge(1,3) - min_edge(1,1));
                 min_point(1,2) = min_edge(1,2) + min_pos*(min_edge(1,4) - min_edge(1,2));
                 line = [min_p(1,1) min_p(1,2) min_point(1,1) min_point(1,2)];
+                if (min_p(1,1)==min_point(1,1)&&(min_p(1,2)==min_point(1,2))) 
+                    continue;
+                end;
                 for l=2:Nobstacles
                     for r=1:length(X1{l})
                        a=r;

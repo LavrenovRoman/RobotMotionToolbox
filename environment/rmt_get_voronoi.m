@@ -405,7 +405,7 @@ end;
 
 number = 2;
 curves_delete = 5:1:CurvesSize;
-for combinations = 1:3
+for combinations = 1:2
     Comb = nchoosek(curves_delete, combinations);
     count_added = 0;
     for c=1:size(Comb, 1)
